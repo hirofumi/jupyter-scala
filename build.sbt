@@ -49,6 +49,8 @@ lazy val `scala-cli` = project.in(file("cli"))
   .settings(packAutoSettings)
   .settings(
     crossVersion := CrossVersion.full,
+    resolvers += Resolver.bintrayRepo("rtfpessoa", "maven"),
+    libraryDependencies += "rtfpessoa" %% "coursier-s3" % "1.0.0-alpha.1",
     libraryDependencies ++= Seq(
       "com.github.alexarchambault" %% "case-app" % "1.1.3",
       "ch.qos.logback" % "logback-classic" % "1.1.7"
