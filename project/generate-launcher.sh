@@ -24,6 +24,7 @@ fi
   -r central \
   -r sonatype:releases \
   -r https://dl.bintray.com/scalaz/releases \
+  -r https://dl.bintray.com/rtfpessoa/maven \
   -d "\${user.home}/.jupyter-scala/bootstrap" \
   -f -o "$OUTPUT" \
   -M jupyter.scala.JupyterScala \
