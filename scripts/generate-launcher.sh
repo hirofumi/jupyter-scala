@@ -9,6 +9,7 @@ SCALA_VERSION=2.11.8
 
 exec coursier bootstrap \
   -r sonatype:releases -r sonatype:snapshots \
+  -r https://dl.bintray.com/rtfpessoa/maven \
   -i ammonite \
   -I ammonite:org.jupyter-scala:ammonite-runtime_$SCALA_VERSION:$AMMONIUM_VERSION \
   -I ammonite:org.jupyter-scala:scala-api_$SCALA_VERSION:$VERSION \
