@@ -5,6 +5,7 @@ import ammonite.repl.{RuntimeApiImpl, SessionApiImpl}
 import ammonite.runtime._
 import ammonite.util._
 import com.typesafe.scalalogging.LazyLogging
+import coursier.Dependency
 import fastparse.core.Parsed
 import jupyter.api.{CommChannelMessage, JupyterApi, Publish}
 import jupyter.kernel.protocol.ShellReply.KernelInfo.LanguageInfo
@@ -13,7 +14,10 @@ import jupyter.kernel.interpreter.Interpreter.IsComplete
 
 import scala.util.Try
 
-class Interp extends jupyter.kernel.interpreter.Interpreter with LazyLogging {
+class Interp(
+  extraRepositories: Seq[String] = Nil,
+  extraDependencies: Seq[(String, Dependency)] = Nil
+) extends jupyter.kernel.interpreter.Interpreter with LazyLogging {
 
 
   def defaultPredef = true
@@ -85,6 +89,8 @@ class Interp extends jupyter.kernel.interpreter.Interpreter with LazyLogging {
     override def printBridge = "_root_.jupyter.api.JupyterAPIHolder.value"
   }
 
+  extraRepositories.foreach(interp.addRepository)
+
   interp.interpApi.load.ivy(
     ("org.jupyter-scala", "ammonite-runtime_" + scala.util.Properties.versionNumberString, BuildInfo.ammoniumVersion)
   )
@@ -92,6 +98,11 @@ class Interp extends jupyter.kernel.interpreter.Interpreter with LazyLogging {
   interp.interpApi.load.ivy(
     ("org.jupyter-scala", "scala-api_" + scala.util.Properties.versionNumberString, BuildInfo.version)
   )
+
+  for ((_, dep) <- extraDependencies)
+    interp.interpApi.load.ivy(
+      (dep.module.organization, dep.module.name, dep.version)
+    )
 
   interp.init()
 
