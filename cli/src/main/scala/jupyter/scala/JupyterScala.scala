@@ -13,10 +13,10 @@ import com.typesafe.scalalogging.LazyLogging
 case class JupyterScalaApp(
   id: String = "scala",
   name: String = "Scala",
-  // @ExtraName("d")
-  //   dependency: List[String],
-  // @ExtraName("r")
-  //   repository: List[String],
+  @ExtraName("d")
+    dependency: List[String],
+  @ExtraName("r")
+    repository: List[String],
   @Recurse
     options: ServerAppOptions
 ) extends App with LazyLogging {
@@ -69,33 +69,26 @@ case class JupyterScalaApp(
     } else
       mainArgs0
 
-  // val (dependencyErrors, parsedDependencies) = coursier.util.Parse.moduleVersionConfigs(dependency)
-  //
-  // if (dependencyErrors.nonEmpty) {
-  //   Console.err.println("Error parsing dependencies:\n" + dependencyErrors.mkString("\n"))
-  //   sys.exit(1)
-  // }
-  //
-  // val parsedDependencies0 = parsedDependencies.map {
-  //   case (mod, ver, configOpt) =>
-  //     configOpt.getOrElse("compile") -> coursier.Dependency(
-  //       mod, ver
-  //     )
-  // }
-  //
-  // val parsedRepositories = coursier.CacheParse.repositories(repository) match {
-  //   case scalaz.Failure(errors) =>
-  //     Console.err.println("Error parsing repositories:\n" + errors.list.mkString("\n"))
-  //     sys.exit(1)
-  //   case scalaz.Success(repos) => repos
-  // }
+  val (dependencyErrors, parsedDependencies) = coursier.util.Parse.moduleVersionConfigs(dependency, scalaBinaryVersion)
+
+  if (dependencyErrors.nonEmpty) {
+     Console.err.println("Error parsing dependencies:\n" + dependencyErrors.mkString("\n"))
+     sys.exit(1)
+  }
+
+  val parsedDependencies0 = parsedDependencies.map {
+    case (mod, ver, configOpt) =>
+      configOpt.getOrElse("compile") -> coursier.Dependency(
+        mod, ver
+      )
+  }
 
   ServerApp(
     id,
     name = name,
     "scala",
     new InterpreterKernel {
-      def apply() = new Interp
+      def apply() = new Interp(repository, parsedDependencies0)
     },
     mainJar,
     isJar = true,
